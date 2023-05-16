@@ -45,4 +45,3 @@ class SECM():
     #    self.MotorController.MoveRelShort()
     #    self.potentiostat.cell_on()
     #    self.potentiostat.get_actual_values()
-    
