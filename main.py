@@ -67,8 +67,9 @@ class SECM():
        #     self.enable_manual_move
        # self.find_feedback_height()
        # print('Substrate calibrated successfully')
+       ...
 
-    """TODO: Implement force sensor of sdc. Async for contact?"""
+    #TODO: Implement force sensor of sdc. Async for contact?
     def find_contact(self,
                            MaxWay: float,
                            StepLength: float,
