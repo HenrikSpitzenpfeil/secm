@@ -2,7 +2,7 @@ import abc
 from abc import ABC
 from langpy import langpy
 from autolab import autolab
-from secm.position_storage import PositionStorage
+from secm.position_storage import PositionStoragefrom secm.position_storage import PositionStorage
 #TODO: Implement dummy methods
 class SECM():
     
@@ -12,7 +12,6 @@ class SECM():
         self.potentiostat = autolab.potentiostat(potentiostat_config)
         self.motor_controller = langpy.LStepController(stepper_config)
         self._measurement_spots = self.measurement_spots
-        # TODO: Not yet properly implemented
         self.positions = PositionStorage()
         self.electrode_size = 0
         self.substrate_size = [0, 0]
