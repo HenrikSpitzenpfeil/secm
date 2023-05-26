@@ -1,11 +1,10 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 @dataclass
 class PositionStorage:
-    
-    _dip: list[float]
-    _wash: list[float]
-    _substrate_initial_position: list[float]
+    _dip: list[float] = field(default_factory=list)
+    _wash: list[float] = field(default_factory=list)
+    _substrate_initial_position: list[float] = field(default_factory=list)
         
     @property
     def wash(self) -> list:
@@ -22,8 +21,8 @@ class PositionStorage:
     
     @dip.setter
     def dip(self, coordinates: list) -> None:
-        #coordinates = self.validate_coordinates(coordinates)
-        self._dip = self.validate_coordinates(coordinates)
+        coordinates = self.validate_coordinates(coordinates)
+        self._dip = coordinates
 
     @property
     def substrate_initial_spot(self) -> list:
