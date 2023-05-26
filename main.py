@@ -2,7 +2,7 @@ import abc
 from abc import ABC
 from langpy import langpy
 from autolab import autolab
-
+from secm.position_storage import PositionStorage
 #TODO: Implement dummy methods
 class SECM():
     
@@ -12,9 +12,7 @@ class SECM():
         self.potentiostat = autolab.potentiostat(potentiostat_config)
         self.motor_controller = langpy.LStepController(stepper_config)
         self._measurement_spots = self.measurement_spots
-        self._wash_position = self.wash_position
-        self._dip_position = self.dip_position
-        self._substrate_initial_spot = self.substrate_initial_spot
+        self.positions = PositionStorage()
         self.electrode_size = 0
         self.substrate_size = [0, 0]
 
@@ -104,10 +102,10 @@ class SECM():
         ...
     
     def move_to_wash(self):
-        self.motor_controller.MoveAbs(*self.wash_position)
+        self.motor_controller.MoveAbs(*self.positions.wash)
     
     def move_to_dip(self):
-        self.motor_controller.MoveAbs(*self.dip_position)
+        self.motor_controller.MoveAbs(*self.positions.dip)
     
     def flush_cell(self):
         ...
