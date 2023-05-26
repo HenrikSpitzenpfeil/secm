@@ -2,7 +2,7 @@ import abc
 from abc import ABC
 from langpy import langpy
 from autolab import autolab
-from secm.position_storage import PositionStoragefrom secm.position_storage import PositionStorage
+from position_storage import PositionStorage
 #TODO: Implement dummy methods
 class SECM():
     
