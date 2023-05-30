@@ -1,5 +1,6 @@
 import ctypes
 
+#TODO: add unit converter to mN
 class MEGSV_3:
     
     def __init__(self, dll_path, port, buffer_size):
