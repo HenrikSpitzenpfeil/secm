@@ -1,16 +1,24 @@
 import abc
+import os 
 from abc import ABC
 from langpy import langpy
 from autolab import autolab
 from position_storage import PositionStorage
+from config.definitions import ROOT_DIR
+from sdc import force_sensor, pump
+
 #TODO: Implement dummy methods
 class SECM():
     
     '''A class representing the Scanning electrochemical microscope'''
 
-    def __init__(self, potentiostat_config, stepper_config):
+    def __init__(self, potentiostat_config, stepper_config, sdc: bool = False):
         self.potentiostat = autolab.potentiostat(potentiostat_config)
         self.motor_controller = langpy.LStepController(stepper_config)
+        
+        if sdc == True:
+            self.force_sensor = force_sensor.MEGSV_3(os.path.join(ROOT_DIR, '\\sdc\\MEGSV.dll'))
+
         self._measurement_spots = self.measurement_spots
         self.positions = PositionStorage()
         self.electrode_size = 0
@@ -88,3 +96,6 @@ class SECM():
     
     def make_droplet(self):
         ...
+    
+    def get_force_sensor_value(self) -> float:
+        return self.force_sensor.get_measurement().value

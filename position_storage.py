@@ -39,3 +39,7 @@ class PositionStorage:
         if not type(coordinates) == list:
             raise ValueError('Invalid Data Type')
         return coordinates
+    
+    def set_coordinates(self, attribute: str, coordinates: list[float]) -> None:
+        coordinates = self.validate_coordinates(coordinates)
+        setattr(self, attribute, coordinates)
