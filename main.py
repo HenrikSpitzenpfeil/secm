@@ -1,20 +1,26 @@
 import abc
+import os 
 from abc import ABC
 from langpy import langpy
 from autolab import autolab
+from position_storage import PositionStorage
+from config.definitions import ROOT_DIR
+from sdc import force_sensor, pump
 
 #TODO: Implement dummy methods
 class SECM():
     
     '''A class representing the Scanning electrochemical microscope'''
 
-    def __init__(self, potentiostat_config, stepper_config):
+    def __init__(self, potentiostat_config, stepper_config, sdc: bool = False):
         self.potentiostat = autolab.potentiostat(potentiostat_config)
         self.motor_controller = langpy.LStepController(stepper_config)
-        self._measurement_spots = self.measurement_spots()
-        self._wash_position = self.wash_position
-        self._dip_position = self.dip_position
-        self._substrate_initial_spot = self.substrate_initial_spot
+        
+        if sdc == True:
+            self.force_sensor = force_sensor.MEGSV_3(os.path.join(ROOT_DIR, '\\sdc\\MEGSV.dll'))
+
+        self._measurement_spots = self.measurement_spots
+        self.positions = PositionStorage()
         self.electrode_size = 0
         self.substrate_size = [0, 0]
 
@@ -25,30 +31,6 @@ class SECM():
     
     @measurement_spots.setter
     def measurement_spots(self, amount: int) -> None:
-        ...
-
-    @property
-    def wash_position(self) -> int:
-        return self._wash_position
-    
-    @wash_position.setter
-    def wash_position(self, amount: int) -> None:
-        ...
-    
-    @property
-    def dip_position(self) -> int:
-        return self._dip_position
-    
-    @dip_position.setter
-    def dip_position(self, amount: int) -> None:
-        ...
-
-    @property
-    def substrate_initial_spot(self) -> int:
-        return self._measurement_spots
-    
-    @substrate_initial_spot.setter
-    def substrate_initial_spot(self, amount: int) -> None:
         ...
 
     def total_measurement_spots(self) -> int:
@@ -104,10 +86,10 @@ class SECM():
         ...
     
     def move_to_wash(self):
-        ...
+        self.motor_controller.MoveAbs(*self.positions.wash)
     
     def move_to_dip(self):
-        ...
+        self.motor_controller.MoveAbs(*self.positions.dip)
     
     def flush_cell(self):
         ...
