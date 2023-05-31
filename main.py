@@ -11,16 +11,26 @@ from sdc import force_sensor, pump
 class SECM():
     
     '''A class representing the Scanning electrochemical microscope'''
-
-    def __init__(self, potentiostat_config, stepper_config, sdc: bool = False):
+#TODO: Think about the init and how to clean it up
+    def __init__(self,
+                 potentiostat_config,
+                 stepper_config,
+                 wash_dip_loc: dict,
+                 sdc: bool = False):
+        
         self.potentiostat = autolab.potentiostat(potentiostat_config)
         self.motor_controller = langpy.LStepController(stepper_config)
         
         if sdc == True:
             self.force_sensor = force_sensor.MEGSV_3(os.path.join(ROOT_DIR, '\\sdc\\MEGSV.dll'))
-
+            
+            self.positions = PositionStorage()
+            #These only need to be defined once on startup depending on the machine and position of substrate tray.
+            #How do you make this more neat? Manual setup option on init or something maybe?
+            self.positions.wash = wash_dip_loc[wash]
+            self.positions.dip = wash_dip_loc[dip]
+        
         self._measurement_spots = self.measurement_spots
-        self.positions = PositionStorage()
         self.electrode_size = 0
         self.substrate_size = [0, 0]
 
