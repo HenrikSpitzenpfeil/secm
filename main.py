@@ -1,5 +1,6 @@
 import abc
 import os 
+import msvcrt
 from abc import ABC
 from langpy import langpy
 from autolab import autolab
@@ -10,14 +11,16 @@ from sdc import force_sensor, pump
 #TODO: Implement dummy methods
 class SECM():
     
-    '''A class representing the Scanning electrochemical microscope'''
+    """A class representing the Scanning electrochemical microscope"""
 #TODO: Think about the init and how to clean it up
     def __init__(self,
                  potentiostat_config,
                  stepper_config,
                  wash_dip_loc: dict,
                  sdc: bool = False):
-        
+        #TODO: find a reasonable value
+        self.stopforce = 100000
+
         self.potentiostat = autolab.potentiostat(potentiostat_config)
         self.motor_controller = langpy.LStepController(stepper_config)
         
@@ -109,3 +112,25 @@ class SECM():
     
     def get_force_sensor_value(self) -> float:
         return self.force_sensor.get_measurement().value
+
+    def manual_control(self):
+        while True:
+            key = msvcrt.getch().decode()
+            
+            if key == 'w':
+                self.motor_controller.MoveRelSingleAxis(2, 1, False)
+            elif key == 's':
+                self.motor_controller.MoveRelSingleAxis(2, -1, False)
+            elif key == 'a':
+                self.motor_controller.MoveRelSingleAxis(1, -1, False)
+            elif key == 'd':
+                self.motor_controller.MoveRelSingleAxis(1, 1, False)
+            elif key == '+':
+                self.motor_controller.MoveRelSingleAxis(3, 1, False)
+            elif key == '-':
+                self.motor_controller.MoveRelSingleAxis(3, -1, False)
+            elif key == 'q':
+                break  # Exit the manual control loop
+            if self.get_force_sensor_value >= self.stopforce:
+                self.motor_controller.StopAxes()
+                break
