@@ -1,6 +1,6 @@
 import abc
 import os 
-import msvcrt
+import keyboard
 from abc import ABC
 from langpy import langpy
 from autolab import autolab
@@ -21,7 +21,6 @@ class SECM():
         #TODO: find a reasonable value
         self.stopforce = 100000
 
-    def __init__(self, potentiostat_config, stepper_config, sdc: bool = False):
         self.potentiostat = autolab.potentiostat(potentiostat_config)
         self.motor_controller = langpy.LStepController(stepper_config)
         
@@ -115,23 +114,33 @@ class SECM():
         return self.force_sensor.get_measurement().value
 
     def manual_control(self):
+        keyboard.on_press(self._handle_key_press)
+        keyboard.on_release(self._handle_key_release)
+        
         while True:
-            key = msvcrt.getch().decode()
-            
-            if key == 'w':
-                self.motor_controller.MoveRelSingleAxis(2, 1, False)
-            elif key == 's':
-                self.motor_controller.MoveRelSingleAxis(2, -1, False)
-            elif key == 'a':
-                self.motor_controller.MoveRelSingleAxis(1, -1, False)
-            elif key == 'd':
-                self.motor_controller.MoveRelSingleAxis(1, 1, False)
-            elif key == '+':
-                self.motor_controller.MoveRelSingleAxis(3, 1, False)
-            elif key == '-':
-                self.motor_controller.MoveRelSingleAxis(3, -1, False)
-            elif key == 'q':
+            if keyboard.is_pressed('q'):
                 break  # Exit the manual control loop
-            if self.get_force_sensor_value >= self.stopforce:
-                self.motor_controller.StopAxes()
+            if self.get_force_sensor_value() == self.stopforce:
                 break
+    
+    def _handle_key_press(self, event):
+        key = event.name
+        #Magic numbers are distance moved per key press 
+        if key == 'w':
+            self.motor_controller.MoveRelSingleAxis(2, 1000)
+        elif key == 's':
+            self.motor_controller.MoveRelSingleAxis(2, -1000)
+        elif key == 'a':
+            self.motor_controller.MoveRelSingleAxis(1, -10000)
+        elif key == 'd':
+            self.motor_controller.MoveRelSingleAxis(1, 1000)
+        elif key == '+':
+            self.motor_controller.MoveRelSingleAxis(3, 1000)
+        elif key == '-':
+            self.motor_controller.MoveRelSingleAxis(3, -1000)
+        
+        # Print the current position after each movement
+        print(f"Current position: {self.GetPos()[1:]}")
+    
+    def _handle_key_release(self, event):
+        pass
