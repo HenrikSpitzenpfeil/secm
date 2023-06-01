@@ -21,6 +21,7 @@ class SECM():
         #TODO: find a reasonable value
         self.stopforce = 100000
 
+    def __init__(self, potentiostat_config, stepper_config, sdc: bool = False):
         self.potentiostat = autolab.potentiostat(potentiostat_config)
         self.motor_controller = langpy.LStepController(stepper_config)
         
