@@ -14,10 +14,10 @@ class SECM():
     """A class representing the Scanning electrochemical microscope"""
 #TODO: Think about the init and how to clean it up
     def __init__(self,
-                 potentiostat_config,
-                 stepper_config,
+                 potentiostat_config: str,
+                 stepper_config: str,
                  wash_dip_loc: dict,
-                 sdc: bool = False):
+                 sdc: bool = False) -> None:
         #TODO: find a reasonable value
         self.stopforce = 100000
 
@@ -25,13 +25,14 @@ class SECM():
         self.motor_controller = langpy.LStepController(stepper_config)
         
         if sdc == True:
-            self.force_sensor = force_sensor.MEGSV_3(os.path.join(ROOT_DIR, '\\sdc\\MEGSV.dll'))
+            #Port configuration for the Palkovits SECM
+            self.force_sensor = force_sensor.MEGSV_3(os.path.join(ROOT_DIR, '\\sdc\\MEGSV.dll'), 4, 1)
             
             self.positions = PositionStorage()
             #These only need to be defined once on startup depending on the machine and position of substrate tray.
             #How do you make this more neat? Manual setup option on init or something maybe?
-            self.positions.wash = wash_dip_loc[wash]
-            self.positions.dip = wash_dip_loc[dip]
+            self.positions.wash = wash_dip_loc['wash']
+            self.positions.dip = wash_dip_loc['dip']
         
         self._measurement_spots = self.measurement_spots
         self.electrode_size = 0
@@ -113,7 +114,7 @@ class SECM():
     def get_force_sensor_value(self) -> float:
         return self.force_sensor.get_measurement().value
 
-    def manual_control(self):
+    def manual_control(self) -> None:
         keyboard.on_press(self._handle_key_press)
         keyboard.on_release(self._handle_key_release)
         
@@ -123,7 +124,7 @@ class SECM():
             if self.get_force_sensor_value() == self.stopforce:
                 break
     
-    def _handle_key_press(self, event):
+    def _handle_key_press(self, event) -> None:
         key = event.name
         #Magic numbers are distance moved per key press 
         if key == 'w':
@@ -142,5 +143,5 @@ class SECM():
         # Print the current position after each movement
         print(f"Current position: {self.GetPos()[1:]}")
     
-    def _handle_key_release(self, event):
+    def _handle_key_release(self, event) -> None:
         pass
