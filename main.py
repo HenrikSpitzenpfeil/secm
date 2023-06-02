@@ -1,6 +1,7 @@
 import os 
 import keyboard
 import json
+import time
 from langpy import langpy
 from autolab import autolab
 from position_storage import PositionStorage
@@ -132,17 +133,23 @@ class SECM():
         key = event.name
         #Magic numbers are distance moved per key press 
         if key == 'w':
-            self.motor_controller.MoveRelSingleAxis(2, 1000)
+            self.motor_controller.MoveRelSingleAxis(2, 1000, False)
+            time.sleep(0.5)
         elif key == 's':
-            self.motor_controller.MoveRelSingleAxis(2, -1000)
+            self.motor_controller.MoveRelSingleAxis(2, -1000, False)
+            time.sleep(0.5)
         elif key == 'a':
-            self.motor_controller.MoveRelSingleAxis(1, -10000)
+            self.motor_controller.MoveRelSingleAxis(1, -1000, False)
+            time.sleep(0.5)
         elif key == 'd':
-            self.motor_controller.MoveRelSingleAxis(1, 1000)
+            self.motor_controller.MoveRelSingleAxis(1, 1000, False)
+            time.sleep(0.5)
         elif key == '+':
-            self.motor_controller.MoveRelSingleAxis(3, 1000)
+            self.motor_controller.MoveRelSingleAxis(3, 1000, False)
+            time.sleep(0.5)
         elif key == '-':
-            self.motor_controller.MoveRelSingleAxis(3, -1000)
+            self.motor_controller.MoveRelSingleAxis(3, -1000, False)
+            time.sleep(0.5)
 
     def _handle_key_release(self, event) -> None:
         pass
