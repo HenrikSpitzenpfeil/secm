@@ -1,7 +1,6 @@
-import abc
 import os 
 import keyboard
-from abc import ABC
+import json
 from langpy import langpy
 from autolab import autolab
 from position_storage import PositionStorage
@@ -14,38 +13,43 @@ class SECM():
     """A class representing the Scanning electrochemical microscope"""
 #TODO: Think about the init and how to clean it up
     def __init__(self,
-                 potentiostat_config: str,
-                 stepper_config: str,
-                 wash_dip_loc: dict,
-                 sdc: bool = False) -> None:
+                 sdc: bool = True) -> None:
+        
+        with open(os.path.join(ROOT_DIR, "config\\secm.json")) as config:
+            config  = json.load(config)
+        
         #TODO: find a reasonable value
         self.stopforce = 100000
 
-        self.potentiostat = autolab.potentiostat(potentiostat_config)
-        self.motor_controller = langpy.LStepController(stepper_config)
+        #self.potentiostat = autolab.potentiostat(config['potentiostat_config'])
+        self.motor_controller = langpy.LStepController(os.path.join(ROOT_DIR,
+                                                                    config['stepper_dll']))
         
         if sdc == True:
             #Port configuration for the Palkovits SECM
-            self.force_sensor = force_sensor.MEGSV_3(os.path.join(ROOT_DIR, '\\sdc\\MEGSV.dll'), 4, 1)
+            self.force_sensor = force_sensor.MEGSV_3(os.path.join(ROOT_DIR,
+                                                                  config['force_sensor_dll']),
+                                                     config['force_sensor_port'],
+                                                     config['force_sensor_buffer_size'])
             
             self.positions = PositionStorage()
             #These only need to be defined once on startup depending on the machine and position of substrate tray.
             #How do you make this more neat? Manual setup option on init or something maybe?
-            self.positions.wash = wash_dip_loc['wash']
-            self.positions.dip = wash_dip_loc['dip']
+            self.positions.wash = config['wash_position']
+            self.positions.dip = config['dip_position']
         
-        self._measurement_spots = self.measurement_spots
+        #self._measurement_spots = self.measurement_spots
         self.electrode_size = 0
         self.substrate_size = [0, 0]
 
     #TODO: Figure out how to best calculate measurement spots and hold substrate size
-    @property
-    def measurement_spots(self) -> int:
-        return self._measurement_spots
+    #@property
+    #def measurement_spots(self) -> int:
+    #    return self._measurement_spots
     
-    @measurement_spots.setter
-    def measurement_spots(self, amount: int) -> None:
-        ...
+    #@measurement_spots.setter
+    #def measurement_spots(self, amount: int) -> None:
+    #    ...
 
     def total_measurement_spots(self) -> int:
         ...
