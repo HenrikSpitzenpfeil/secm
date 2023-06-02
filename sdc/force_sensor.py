@@ -11,7 +11,7 @@ class MEGSV_3:
 
     def get_measurement(self) -> ctypes.c_double:
         value = ctypes.c_double()
-        dll.GSVRead(self.port, ctypes.byref(value))
+        self.dll.GSVread(self.port, ctypes.byref(value))
         return value
     
     def release(self) -> None:

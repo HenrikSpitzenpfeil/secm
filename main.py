@@ -143,9 +143,6 @@ class SECM():
             self.motor_controller.MoveRelSingleAxis(3, 1000)
         elif key == '-':
             self.motor_controller.MoveRelSingleAxis(3, -1000)
-        
-        # Print the current position after each movement
-        print(f"Current position: {self.GetPos()[1:]}")
-    
+
     def _handle_key_release(self, event) -> None:
         pass
