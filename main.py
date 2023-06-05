@@ -19,13 +19,21 @@ class SECM():
         with open(os.path.join(ROOT_DIR, "config\\secm.json")) as config:
             config  = json.load(config)
         
+        #Definie Constants
         #TODO: find a reasonable value
         self.stopforce = 100000
+        self.positioning_velocity = 2000
 
+        #Initialize Motor Controller and set parameters
         #self.potentiostat = autolab.potentiostat(config['potentiostat_config'])
         self.motor_controller = langpy.LStepController(os.path.join(ROOT_DIR,
                                                                     config['stepper_dll']))
+        self.motor_controller.SetVel(self.positioning_velocity,
+                                     self.positioning_velocity,
+                                     self.positioning_velocity_velocity,
+                                     0)
         
+        #If scanning droplet cell is enabled initialize it
         if sdc == True:
             #Port configuration for the Palkovits SECM
             self.force_sensor = force_sensor.MEGSV_3(os.path.join(ROOT_DIR,
