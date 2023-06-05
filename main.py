@@ -141,6 +141,8 @@ class SECM():
                 break  # Exit the manual control loop
             if self.get_force_sensor_value() == self.stopforce:
                 break
+            
+        keyboard.unhook_all()
     
     def _handle_key_press(self, event) -> None:
         """Helper functions for the manual control.
