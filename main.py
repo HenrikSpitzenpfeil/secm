@@ -21,7 +21,7 @@ class SECM():
         
         #Definie Constants
         #TODO: find a reasonable value
-        self.stop_force = 0.1
+        self.stop_force = 0.05
         self.positioning_velocity = 2000
 
         #self.potentiostat = autolab.potentiostat(config['potentiostat_config'])
@@ -132,8 +132,11 @@ class SECM():
         
         while True:
             if keyboard.is_pressed('q'):
+                keyboard.unhook_all()
                 break  # Exit the manual control loop
             if self.get_force_sensor_value() >= self.stop_force:
+                self.motor_controller.StopAxes()
+                keyboard.unhook_all()
                 break
             
         keyboard.unhook_all()
