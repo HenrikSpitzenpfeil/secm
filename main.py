@@ -24,13 +24,14 @@ class SECM():
         self.stopforce = 100000
         self.positioning_velocity = 2000
 
-        #Initialize Motor Controller and set parameters
         #self.potentiostat = autolab.potentiostat(config['potentiostat_config'])
+
+        #Initialize Motor Controller and set parameters
         self.motor_controller = langpy.LStepController(os.path.join(ROOT_DIR,
                                                                     config['stepper_dll']))
         self.motor_controller.SetVel(self.positioning_velocity,
                                      self.positioning_velocity,
-                                     self.positioning_velocity_velocity,
+                                     self.positioning_velocity,
                                      0)
         
         #If scanning droplet cell is enabled initialize it
