@@ -21,7 +21,7 @@ class SECM():
         
         #Definie Constants
         #TODO: find a reasonable value
-        self.stopforce = 100000
+        self.stop_force = 0.1
         self.positioning_velocity = 2000
 
         #self.potentiostat = autolab.potentiostat(config['potentiostat_config'])
@@ -81,33 +81,27 @@ class SECM():
 
     #TODO: Implement force sensor of sdc. Async for contact?
     def find_contact(self,
-                           MaxWay: float,
-                           StepLength: float,
-                           StopCondition: float = 0.25
-                           ) -> list:
-        '''Performs a line scan experiment along the z axis of the SECM.
-        1/10 of electrode diameter is recommended as step size.
-        StopCondtion is a value between 0 and 1 that represents the percentage 
-        change of measured current from the reference current.
-         Returns the approach curve data as nested list [[position, current]].
-         '''
+                     MaxWay: float,
+                     StepLength: float,
+                     StopCondition: float) -> list:
         
-        #TODO: find how to set speed of the LSTEP controller
+        """Moves the arm towards the substrate until 
+        a force threshold is exceeded at the sdc head.
+        1/10 of electrode diameter is recommended as step size.
+        StopCondtion is a force value measured by 
+        the force sensor of the sdc head."""
 
-        self.motor_controller.SetDistance(0, 0, -StepLength, 0)
-        #self.MotorController.SetSpeed(MaxSpeed)
         way_traveled = 0
-        self.potentiostat.cell_on()
-        reference_current = self.potentiostat.get_actual_values()[1]
-        current = reference_current
-        ApproachCurve = [[way_traveled, current]]
+        move_duration = StepLength/self.positioning_velocity
 
-        while abs((current-reference_current)/reference_current) < StopCondition and way_traveled < MaxWay:
-            self.motor_controller.MoveRelShort()
-            current = self.potentiostat.get_actual_values()[1]
+        while way_traveled < MaxWay:
+            self.motor_controller.MoveRelSingleAxis(3, StepLength, False)
+            t_end = time.time() + move_duration
+            while time.time() < t_end:
+                if self.get_force_sensor_value >= StopCondition:
+                    return print("Contact found")
             way_traveled = way_traveled + StepLength
-            ApproachCurve.append([way_traveled, current])
-        return ApproachCurve
+        return print("No contact found")
     
     #TODO: Implement this as a function of electrode size and substrate size
     def move_to_next_experiment(self):
@@ -139,7 +133,7 @@ class SECM():
         while True:
             if keyboard.is_pressed('q'):
                 break  # Exit the manual control loop
-            if self.get_force_sensor_value() == self.stopforce:
+            if self.get_force_sensor_value() >= self.stop_force:
                 break
             
         keyboard.unhook_all()
