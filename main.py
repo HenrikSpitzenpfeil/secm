@@ -125,9 +125,13 @@ class SECM():
         ...
     
     def get_force_sensor_value(self) -> float:
+        """Get the current value of the force sensor"""
+
         return self.force_sensor.get_measurement().value
 
     def manual_control(self) -> None:
+        """Enables manual control of the SECM X,Y,Z arm.
+        Controls are WASD for X,Y and +,- for Z axis"""
         keyboard.on_press(self._handle_key_press)
         keyboard.on_release(self._handle_key_release)
         
@@ -138,26 +142,32 @@ class SECM():
                 break
     
     def _handle_key_press(self, event) -> None:
+        """Helper functions for the manual control.
+        Defines the hotkeys and the move distance per button press."""
         key = event.name
+        move_distance = 1000
+        sleep_time = 0.6
         #Magic numbers are distance moved per key press 
         if key == 'w':
-            self.motor_controller.MoveRelSingleAxis(2, 1000, False)
-            time.sleep(0.5)
+            self.motor_controller.MoveRelSingleAxis(2, move_distance, False)
+            time.sleep(sleep_time)
         elif key == 's':
-            self.motor_controller.MoveRelSingleAxis(2, -1000, False)
-            time.sleep(0.5)
+            self.motor_controller.MoveRelSingleAxis(2, -move_distance, False)
+            time.sleep(sleep_time)
         elif key == 'a':
-            self.motor_controller.MoveRelSingleAxis(1, -1000, False)
-            time.sleep(0.5)
+            self.motor_controller.MoveRelSingleAxis(1, -move_distance, False)
+            time.sleep(sleep_time)
         elif key == 'd':
-            self.motor_controller.MoveRelSingleAxis(1, 1000, False)
-            time.sleep(0.5)
+            self.motor_controller.MoveRelSingleAxis(1, move_distance, False)
+            time.sleep(sleep_time)
         elif key == '+':
-            self.motor_controller.MoveRelSingleAxis(3, 1000, False)
-            time.sleep(0.5)
+            self.motor_controller.MoveRelSingleAxis(3, move_distance, False)
+            time.sleep(sleep_time)
         elif key == '-':
-            self.motor_controller.MoveRelSingleAxis(3, -1000, False)
-            time.sleep(0.5)
+            self.motor_controller.MoveRelSingleAxis(3, -move_distance, False)
+            time.sleep(sleep_time)
 
     def _handle_key_release(self, event) -> None:
+        """ Helper function to handle the key release. 
+        Currently nothing happens on key release"""
         pass
