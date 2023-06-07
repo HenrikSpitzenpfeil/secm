@@ -2,6 +2,7 @@ import serial
 import json
 import os
 import re
+import time
 from config.definitions import ROOT_DIR
 class MicrodosePump:
     """Class for the Microdose PCON-C Pump that is used to move elctrolyte to 
@@ -43,14 +44,20 @@ class MicrodosePump:
         return None
 
     def ensure_pump_status_ready(self) -> None:
-        ...
+        while True:
+            pump_status = self.get_pump_status
+            if pump_status == 1:
+                break
+            time.sleep(0.1)
     
-    def get_pump_status(self) -> str:
-        """Get the pump status code from the handshake"""
+    def get_pump_status(self) -> int:
+        """Get the pump status code from the handshake. 
+        Returns intiger status code."""
         
         self.pump.write(bytes('1,RSS,0\r', 'utf-8'))
-        answer = self.pump.read()
-        return 
+        answer = self.pump.read(100)
+        handshake = re.search(self.handshake_regex, answer.decode())
+        return handshake[6]
 
     def read_pump(self) -> str:
         return self.pump.read(1000)
