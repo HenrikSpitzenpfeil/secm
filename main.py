@@ -89,7 +89,7 @@ class SECM():
         a force threshold is exceeded at the sdc head.
         1/10 of electrode diameter is recommended as step size.
         StopCondtion is a force value measured by 
-        the force sensor of the sdc head."""
+        the force sensor of the sdc head. 200 mN ≈ 0,22"""
 
         way_traveled = 0
         move_duration = StepLength/self.positioning_velocity
