@@ -1,0 +1,8 @@
+{
+    "1": "in command mode",
+    "2": "in program execution mode",
+    "3": "in stop 'stop mode' (pump is halted)",
+    "4": "in 'wait mode' (controller waits for a start impulse to execute the program step)",
+    "5": "sync error stop mode",
+    "6": "sync error stop mode"
+}

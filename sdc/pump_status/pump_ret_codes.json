@@ -1,0 +1,9 @@
+{
+    "OK": "no error, command executed",
+    "UC": "unknown command executed",
+    "PA": "incorrect amount of parameters",
+    "NA": "Command is not allowed in current mode",
+    "PR": "atleast one parameter is out of range",
+    "PL": "too many symbols in a parameter",
+    "DF": "unknown data format"
+}
