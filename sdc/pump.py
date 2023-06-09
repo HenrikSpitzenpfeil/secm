@@ -16,7 +16,7 @@ class MicrodosePump:
         except:
             print("Failed to connect to Microdose Pump")
         
-        self.handshake_regex = re.compile("HS\,.+")
+        self.handshake_regex = re.compile("\d,HS\,[A-Z]{2}(?:\,?\d?)*")
     
     def set_program(self,
                     flowrate: int,
