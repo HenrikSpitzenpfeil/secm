@@ -12,13 +12,13 @@ class MicrodosePump:
 
     def __init__(self, port: str, baudrate: int, timeout: int) -> None:
         try:
-            self.pump =  serial.Serial(port, baudrate, timeout)
+            self.pump = serial.Serial(port, baudrate, timeout = timeout)
             print("Connected to Microdose Pump")
         except:
             print("Failed to connect to Microdose Pump")
         
         # Matches the handshake status pattern of the pump
-        self.handshake_regex = re.compile("\d,HS\,[A-Z]{2}(?:\,?\d?)*")
+        self.handshake_regex = re.compile("\d,HS\,[A-Z]{2}(?:\,\d)+")
     
     def set_program(self,
                     flowrate: int,
@@ -63,7 +63,7 @@ class MicrodosePump:
         Returns intiger status code."""
         
         self.pump.write(bytes('1,RSS,0\r', 'utf-8')) # command to ask for the pump status
-        answer = self.read_pump
+        answer = self.read_pump()
         
         # iterate over the list of pump outputs to find the handshake with pump status information
         for i in answer:

@@ -96,10 +96,10 @@ class SECM():
         move_duration = StepLength/self.positioning_velocity
 
         while way_traveled < MaxWay:
-            self.motor_controller.MoveRelSingleAxis(3, StepLength, False)
+            self.motor_controller.MoveRelSingleAxis(3, -StepLength, False)
             t_end = time.time() + move_duration
             while time.time() < t_end:
-                if self.get_force_sensor_value >= StopCondition:
+                if self.get_force_sensor_value() >= StopCondition:
                     return print("Contact found")
             way_traveled = way_traveled + StepLength
         return print("No contact found")
@@ -114,8 +114,9 @@ class SECM():
     def move_to_dip(self):
         self.motor_controller.MoveAbs(*self.positions.dip)
     
+    # TODO: read sdc manual
     def wash_cell(self):
-        ...
+        self.microdose_pump.set_program(100, )
     
     def make_droplet(self):
         ...
