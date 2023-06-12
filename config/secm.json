@@ -12,6 +12,6 @@
     "pump_port": "COM 5",
     "pump_baudrate": 1200,
     "pump_timeout": 1,
-    "wash_position": [12000,8718,4348,0],
-    "dip_position": [23511,8718,4348,0]
+    "wash_position": [25795.8,26324.4,4989.2,0],
+    "dip_position": [25795.8,20324.4,4989.2]
 }
