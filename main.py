@@ -19,12 +19,10 @@ class SECM():
         with open(os.path.join(ROOT_DIR, "config\\secm.json")) as config:
             config  = json.load(config)
         
-        #Definie Constants
+        #Define Constants
         #TODO: find a reasonable value
         self.stop_force = 0.05
         self.positioning_velocity = 2000
-
-        #self.potentiostat = autolab.potentiostat(config['potentiostat_config'])
 
         #Initialize Motor Controller and set parameters
         self.motor_controller = langpy.LStepController(os.path.join(ROOT_DIR,
@@ -42,12 +40,16 @@ class SECM():
                                                      config['force_sensor_port'],
                                                      config['force_sensor_buffer_size'])
             
+            self.microdose_pump = pump.MicrodosePump(config['pump_port'],
+                                                     config['pump_baudrate'],
+                                                     config['pump_timeout'])
+
             self.positions = PositionStorage()
             #These only need to be defined once on startup depending on the machine and position of substrate tray.
             #How do you make this more neat? Manual setup option on init or something maybe?
             self.positions.wash = config['wash_position']
             self.positions.dip = config['dip_position']
-        
+
         #self._measurement_spots = self.measurement_spots
         self.electrode_size = 0
         self.substrate_size = [0, 0]
@@ -79,7 +81,6 @@ class SECM():
        # print('Substrate calibrated successfully')
        ...
 
-    #TODO: Implement force sensor of sdc. Async for contact?
     def find_contact(self,
                      MaxWay: float,
                      StepLength: float,
@@ -95,10 +96,10 @@ class SECM():
         move_duration = StepLength/self.positioning_velocity
 
         while way_traveled < MaxWay:
-            self.motor_controller.MoveRelSingleAxis(3, StepLength, False)
+            self.motor_controller.MoveRelSingleAxis(3, -StepLength, False)
             t_end = time.time() + move_duration
             while time.time() < t_end:
-                if self.get_force_sensor_value >= StopCondition:
+                if self.get_force_sensor_value() >= StopCondition:
                     return print("Contact found")
             way_traveled = way_traveled + StepLength
         return print("No contact found")
@@ -113,8 +114,9 @@ class SECM():
     def move_to_dip(self):
         self.motor_controller.MoveAbs(*self.positions.dip)
     
-    def flush_cell(self):
-        ...
+    # TODO: read sdc manual
+    def wash_cell(self):
+        self.microdose_pump.set_program(100, )
     
     def make_droplet(self):
         ...
