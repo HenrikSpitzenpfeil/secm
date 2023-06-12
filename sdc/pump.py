@@ -10,11 +10,9 @@ class MicrodosePump:
     """Class for the Microdose PCON-C Pump that is used to move elctrolyte to 
     and from the SDC Head"""
 
-    def __init__(self, config: dict) -> None:
+    def __init__(self, port: str, baudrate: int, timeout: int) -> None:
         try:
-            self.pump =  serial.Serial(config['port'],
-                                   config['baudrate'],
-                                   config['timeout'])
+            self.pump =  serial.Serial(port, baudrate, timeout)
             print("Connected to Microdose Pump")
         except:
             print("Failed to connect to Microdose Pump")
