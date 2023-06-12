@@ -13,6 +13,6 @@ class MEGSV_3:
         value = ctypes.c_double()
         self.dll.GSVread(self.port, ctypes.byref(value))
         return value
-    
+
     def release(self) -> None:
-        self.dll.GSVrelease(self.port,self.buffer) 
+        self.dll.GSVrelease(self.port,self.buffer)
