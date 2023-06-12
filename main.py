@@ -51,23 +51,10 @@ class SECM():
             self.positions.dip = config['dip_position']
 
         #self._measurement_spots = self.measurement_spots
-        self.electrode_size = 0
-        self.substrate_size = [0, 0]
+        #self.electrode_size = 0
+        #self.substrate_size = [0, 0]
 
     #TODO: Figure out how to best calculate measurement spots and hold substrate size
-    #@property
-    #def measurement_spots(self) -> int:
-    #    return self._measurement_spots
-    
-    #@measurement_spots.setter
-    #def measurement_spots(self, amount: int) -> None:
-    #    ...
-
-    def total_measurement_spots(self) -> int:
-        ...
-    
-    def measurements_left(self) -> int:
-        ...
     
     def next_substrate(self):
        # input('Please install a new substrate')
@@ -114,13 +101,33 @@ class SECM():
     def move_to_dip(self):
         self.motor_controller.MoveAbs(*self.positions.dip)
     
-    # TODO: read sdc manual
-    def wash_cell(self):
-        self.microdose_pump.set_program(100, )
-    
-    def make_droplet(self):
-        ...
-    
+    def prime_cell(self) -> None:
+        
+        """Flushes the cell of used electrolyte and removes excess electrolyte"""
+
+        self.move_to_wash()
+        self.microdose_pump.set_program(30, 150, 1)
+        self.microdose_pump.run_pump() # flushes the cell
+        self.move_to_dip() # removes excess
+        self.motor_controller.MoveRelSingleAxis(3, 1000, True) # lift up to break surface tension
+
+    def prepare_next_experiment(self) -> None:
+        """Aspirate the sdc head find next contact position
+          and primes cell for next experiment"""
+        
+        self.microdose_pump.set_program(30, 100, 0)
+        self.microdose_pump.run_pump()
+        self.motor_controller.MoveRelSingleAxis(3, 1000, True)
+        #self.move_to_next_spot()
+        self.find_contact(1500, 20, 0.22)
+        contact_position = self.motor_controller.GetPos() # Find the next position without elctrolyte in the sdc head
+        self.prime_cell()  # prime cell with electrolyte
+        self.motor_controller.MoveAbs(contact_position[1],
+                                      contact_position[2],
+                                      contact_position[3],
+                                      contact_position[4])
+        self.find_contact() # make sure adequate contact is sustained 
+
     def get_force_sensor_value(self) -> float:
         """Get the current value of the force sensor"""
 
