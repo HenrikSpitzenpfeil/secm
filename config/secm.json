@@ -9,7 +9,7 @@
     "force_sensor_dll": "sdc\\MEGSV.dll",
     "force_sensor_port": 4,
     "force_sensor_buffer_size": 1,
-    "pump_port": "COM 5",
+    "pump_port": "COM5",
     "pump_baudrate": 1200,
     "pump_timeout": 1,
     "wash_position": [25795.8,26324.4,4989.2,0],
