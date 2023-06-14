@@ -70,7 +70,7 @@ class SECM():
         print('Please use W, A, S, D, +, - to move Probe to starting position for calibration. Press q to confirm')
         self.manual_control() #enables manual control of the probe
         print('Substrate calibrated successfully')
-        return self.motor_controller.GetPos()[1:]
+        self.positions.substrate_start_spot = self.motor_controller.GetPos()[1:]
 
     def find_contact(self,
                      MaxWay: float,
@@ -89,10 +89,11 @@ class SECM():
         while way_traveled < MaxWay:
             self.motor_controller.MoveRelSingleAxis(3, -StepLength, False)
             t_end = time.time() + move_duration
-            while time.time() < t_end:
+            
+            while time.time() < t_end: #check force sensor during move command 
                 if self.get_force_sensor_value() >= StopCondition:
                     return print("Contact found")
-            way_traveled = way_traveled + StepLength
+            way_traveled = way_traveled + StepLength #track distance moved 
         return print("No contact found")
     
     #TODO: Implement this as a function of electrode size and substrate size
@@ -105,9 +106,9 @@ class SECM():
         x_traveled = self.positions.substrate_start_spot[0] - self.positions.current_position[0]
         y_traveled = self.positions.substrate_start_spot[1] - self.positions.current_position[1]
 
-        if x_traveled > max_x - step_size: # Check if there is no space left in x-direction
+        if x_traveled > self.max_travel[0] - step_size: # Check if there is no space left in x-direction
             
-            if y_traveled > max_y-step_size: # Check if there is no space left in y-direction
+            if y_traveled > self.max_travel[1] - step_size: # Check if there is no space left in y-direction
                 self.new_substrate() # Out of space on substrate new substrate needs to be installed
             
             else: # Out of x-space move to new line in y-axis
@@ -143,7 +144,7 @@ class SECM():
         self.microdose_pump.set_program(30, 100, 0) # pulls electrolyte back into sdc head
         self.microdose_pump.run_pump()
         self.motor_controller.MoveRelSingleAxis(3, 1000, True) #lift sdc head
-        #self.move_to_next_spot()
+        self.move_to_next_spot(step_size)
         self.find_contact(1500, 20, 0.22)
         contact_position = self.motor_controller.GetPos() # Find the next position without elctrolyte in the sdc head
         self.prime_cell()  # prime cell with electrolyte
@@ -181,7 +182,7 @@ class SECM():
                 self.motor_controller.StopAxes()
                 keyboard.unhook_all()
                 break
-            
+            time.sleep(0.001)
         keyboard.unhook_all()
     
     def _handle_key_press(self, event) -> None:
