@@ -2,9 +2,14 @@ from dataclasses import dataclass, field
 
 @dataclass
 class PositionStorage:
+
+    """Class to store positons of the sdc/secm setup.
+    Coordinate have the shape [X, Y, Z, A]"""
+
     _dip: list[float] = field(default_factory=list)
     _wash: list[float] = field(default_factory=list)
-    _substrate_initial_position: list[float] = field(default_factory=list)
+    _substrate_start_spot: list[float] = field(default_factory=list)
+    _current_position: list[float] = field(default_factory=list)
         
     @property
     def wash(self) -> list:
@@ -25,15 +30,27 @@ class PositionStorage:
         self._dip = coordinates
 
     @property
-    def substrate_initial_spot(self) -> list:
-        return self._substrate_initial_position
+    def substrate_start_spot(self) -> list:
+        return self._substrate_start_spot
     
-    @substrate_initial_spot.setter
-    def substrate_initial_spot(self, coordinates: list) -> None:
+    @substrate_start_spot.setter
+    def substrate_start_spot(self, coordinates: list) -> None:
         coordinates = self.validate_coordinates(coordinates)
-        self._substrate_initial_position = coordinates
+        self._substrate_start_spot = coordinates
+
+    @property
+    def current_position(self) -> list:
+        return self._current_position
+    
+    @current_position.setter
+    def current_position(self, coordinates: list) -> None:
+        coordinates = self.validate_coordinates(coordinates)
+        self._current_position = coordinates
 
     def validate_coordinates(self, coordinates):
+        
+        """Ensures that coordinate passed are valid and have shape [X,Y,Z,A]"""
+        
         if not len(coordinates) == 4:
             raise ValueError('Invalid amount of coordinates given')
         if not type(coordinates) == list:

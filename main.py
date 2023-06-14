@@ -55,18 +55,21 @@ class SECM():
         #self.substrate_size = [0, 0]
 
     #TODO: Figure out how to best calculate measurement spots and hold substrate size
-    
-    def next_substrate(self):
-       # input('Please install a new substrate')
-       # self.substrate_size = list(input('Please input a list with substrate size'))
-       # print('Please use arrow keys to move Probe to starting position for calibration')
-       # while True:
-       #     if enter == True:
-       #      break
-       #     self.enable_manual_move
-       # self.find_feedback_height()
-       # print('Substrate calibrated successfully')
-       ...
+    def set_substrate_start_spot(self):
+        self.manual_control()
+        self.positions.substrate_start_spot = self.motor_controller.GetPos()[1:]
+        
+    def new_substrate(self) -> tuple:
+        
+        """ Prompts user to install a new substrate and move the sdc head to the new starting position.
+        Returns the coordinates of the starting position"""
+
+        input('Please install a new substrate')
+        self.substrate_size = list(input('Please input a list with substrate size'))
+        print('Please use W, A, S, D, +, - to move Probe to starting position for calibration. Press q to confirm')
+        self.manual_control() #enables manual control of the probe
+        print('Substrate calibrated successfully')
+        return self.motor_controller.GetPos()[1:]
 
     def find_contact(self,
                      MaxWay: float,
@@ -92,8 +95,28 @@ class SECM():
         return print("No contact found")
     
     #TODO: Implement this as a function of electrode size and substrate size
-    def move_to_next_experiment(self):
-        ...
+    def move_to_next_experiment(self, step_size, max_x, max_y):
+        
+        """ Moves the sdc head to the next measurement spot.
+        Includes logic to find if there is no space left on substrate"""
+        
+        # Find the distance already traveled in x and y directions
+        x_traveled = self.positions.substrate_start_spot[0] - self.positions.current_position[0]
+        y_traveled = self.positions.substrate_start_spot[1] - self.positions.current_position[1]
+
+        if x_traveled > max_x - step_size: # Check if there is no space left in x-direction
+            
+            if y_traveled > max_y-step_size: # Check if there is no space left in y-direction
+                self.new_substrate() # Out of space on substrate new substrate needs to be installed
+            
+            else: # Out of x-space move to new line in y-axis
+                self.motor_controller.MoveRelSingleAxis(2, - step_size)
+                self.motor_controller.MoveAbsSingleAxis(1, self.positions.substrate_start_spot()[0]) 
+                self.positions.current_position = self.motor_controller.GetPos[1:]
+        
+        else: # Space in x-direction left move to next spot
+            self.motor_controller.MoveRelSingleAxis(1, - step_size)
+            self.positions.current_position = self.motor_controller.GetPos[1:]
     
     def move_to_wash(self):
         self.motor_controller.MoveAbs(*self.positions.wash)
@@ -116,9 +139,9 @@ class SECM():
         """Aspirate the sdc head find next contact position
           and primes cell for next experiment"""
         
-        self.microdose_pump.set_program(30, 100, 0)
+        self.microdose_pump.set_program(30, 100, 0) # pulls electrolyte back into sdc head
         self.microdose_pump.run_pump()
-        self.motor_controller.MoveRelSingleAxis(3, 1000, True)
+        self.motor_controller.MoveRelSingleAxis(3, 1000, True) #lift sdc head
         #self.move_to_next_spot()
         self.find_contact(1500, 20, 0.22)
         contact_position = self.motor_controller.GetPos() # Find the next position without elctrolyte in the sdc head
