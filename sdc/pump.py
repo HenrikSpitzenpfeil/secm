@@ -28,6 +28,7 @@ class MicrodosePump:
         
         """Set the Pump program which will be executed when run_pump is called.
         Direction is 0 to pump to the SDC Head, 1 to pump away."""
+
         # Set the pump units to mikrolitre
         self.pump.write(bytes('1,WPU,1,0,0,1.0\r','utf-8'))
         # Set program information to 1 cycle, 1 step, and program name
@@ -43,22 +44,31 @@ class MicrodosePump:
         return None
     
     def run_pump(self) -> None:
+        
         """Executes the Program set with set_program"""
+
         self.pump.write(bytes('1,EP,1\r','utf-8'))
 
         self.ensure_pump_status_ready() # ensures that pump program has completed
         return None
 
     def ensure_pump_status_ready(self) -> bool:
+        
         """ Ensures that pump program has completed
           and the pump is available to receive commands."""
+        
         while True:
-            pump_status = int(self.get_pump_status()[8])
+            handshake = int(self.get_pump_status()[8])
+            if handshake == None: # For some reason get_pump_status can return None even though it shouldn't be able to
+                continue
+
+            pump_status = int(handshake[8])
             if pump_status == 1: # Pump status 1 is  pump in command mode available to receive commands
                 return True
             time.sleep(0.1)
     
     def get_pump_status(self) -> str:
+        
         """Get the pump status code from the handshake. 
         Returns intiger status code."""
         
@@ -72,7 +82,9 @@ class MicrodosePump:
                 return match.group()
 
     def read_pump(self) -> list:
+        
         """ Reads the COM Buffer and returns a list of strings."""
+        
         out = self.pump.read(1000) 
         out = out.decode() # Turns bytes into strings
         return out.split('\r')
