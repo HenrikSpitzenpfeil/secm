@@ -50,15 +50,16 @@ class SECM():
             self.positions.wash = config['wash_position']
             self.positions.dip = config['dip_position']
 
-        #self._measurement_spots = self.measurement_spots
         #self.electrode_size = 0
-        #self.substrate_size = [0, 0]
+        self.substrate_size = [0, 0]
+        self.xy_axis_length = [220000, 220000]
+        self.max_travel = [0, 0]
 
     #TODO: Figure out how to best calculate measurement spots and hold substrate size
     def set_substrate_start_spot(self):
         self.manual_control()
         self.positions.substrate_start_spot = self.motor_controller.GetPos()[1:]
-        
+
     def new_substrate(self) -> tuple:
         
         """ Prompts user to install a new substrate and move the sdc head to the new starting position.
@@ -95,7 +96,7 @@ class SECM():
         return print("No contact found")
     
     #TODO: Implement this as a function of electrode size and substrate size
-    def move_to_next_experiment(self, step_size, max_x, max_y):
+    def move_to_next_experiment(self, step_size):
         
         """ Moves the sdc head to the next measurement spot.
         Includes logic to find if there is no space left on substrate"""
@@ -158,6 +159,12 @@ class SECM():
 
         return self.force_sensor.get_measurement().value
 
+    def set_max_travel(self):
+        if self.substrate_size < self.xy_axis_length:
+             self.max_travel = self.substrate_size
+        else:
+            self.max_travel = self.xy_axis_length
+    
     def manual_control(self) -> None:
         
         """Enables manual control of the SECM X,Y,Z arm.

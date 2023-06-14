@@ -1,6 +1,4 @@
 import serial
-#import json
-#import os
 import re
 import time
 
