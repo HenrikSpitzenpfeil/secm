@@ -112,6 +112,7 @@ class SECM():
         self.motor_controller.MoveRelSingleAxis(3, 1000, True) # lift up to break surface tension
 
     def prepare_next_experiment(self) -> None:
+        
         """Aspirate the sdc head find next contact position
           and primes cell for next experiment"""
         
@@ -126,16 +127,19 @@ class SECM():
                                       contact_position[2],
                                       contact_position[3],
                                       contact_position[4])
-        self.find_contact() # make sure adequate contact is sustained 
+        self.find_contact(1500, 20, 0.22) # make sure adequate contact is sustained 
 
     def get_force_sensor_value(self) -> float:
+        
         """Get the current value of the force sensor"""
 
         return self.force_sensor.get_measurement().value
 
     def manual_control(self) -> None:
+        
         """Enables manual control of the SECM X,Y,Z arm.
         Controls are WASD for X,Y and +,- for Z axis"""
+
         keyboard.on_press(self._handle_key_press)
         keyboard.on_release(self._handle_key_release)
         
@@ -153,6 +157,7 @@ class SECM():
     def _handle_key_press(self, event) -> None:
         """Helper functions for the manual control.
         Defines the hotkeys and the move distance per button press."""
+
         key = event.name
         move_distance = 1000
         sleep_time = 0.6
@@ -179,4 +184,5 @@ class SECM():
     def _handle_key_release(self, event) -> None:
         """ Helper function to handle the key release. 
         Currently nothing happens on key release"""
+        
         pass
