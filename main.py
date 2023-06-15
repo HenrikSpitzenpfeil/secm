@@ -70,7 +70,8 @@ class SECM():
         print('Please use W, A, S, D, +, - to move Probe to starting position for calibration. Press q to confirm')
         self.manual_control() #enables manual control of the probe
         print('Substrate calibrated successfully')
-        self.positions.substrate_start_spot = self.motor_controller.GetPos()[1:]
+        self.positions.substrate_start_spot = list(self.motor_controller.GetPos()[1:])
+        self.positions.current_position = list(self.motor_controller.GetPos()[1:])
 
     def find_contact(self,
                      MaxWay: float,
@@ -112,13 +113,13 @@ class SECM():
                 self.new_substrate() # Out of space on substrate new substrate needs to be installed
             
             else: # Out of x-space move to new line in y-axis
-                self.motor_controller.MoveRelSingleAxis(2, - step_size)
-                self.motor_controller.MoveAbsSingleAxis(1, self.positions.substrate_start_spot()[0]) 
-                self.positions.current_position = self.motor_controller.GetPos[1:]
+                self.motor_controller.MoveRelSingleAxis(2, -step_size)
+                self.motor_controller.MoveAbsSingleAxis(1, self.positions.substrate_start_spot[0]) 
+                self.positions.current_position = list(self.motor_controller.GetPos()[1:])
         
         else: # Space in x-direction left move to next spot
-            self.motor_controller.MoveRelSingleAxis(1, - step_size)
-            self.positions.current_position = self.motor_controller.GetPos[1:]
+            self.motor_controller.MoveRelSingleAxis(1, -step_size)
+            self.positions.current_position = list(self.motor_controller.GetPos()[1:])
     
     def move_to_wash(self):
         self.motor_controller.MoveAbs(*self.positions.wash)
@@ -136,7 +137,7 @@ class SECM():
         self.move_to_dip() # removes excess
         self.motor_controller.MoveRelSingleAxis(3, 1000, True) # lift up to break surface tension
 
-    def prepare_next_experiment(self) -> None:
+    def prepare_next_experiment(self, step_size) -> None:
         
         """Aspirate the sdc head find next contact position
           and primes cell for next experiment"""
@@ -160,6 +161,7 @@ class SECM():
 
         return self.force_sensor.get_measurement().value
 
+    # TODO: think about how to reserve some margin and account for allready used axis space because of wash etc.
     def set_max_travel(self):
         if self.substrate_size < self.xy_axis_length:
              self.max_travel = self.substrate_size
