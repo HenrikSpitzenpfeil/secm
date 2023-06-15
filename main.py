@@ -16,13 +16,16 @@ class SECM():
     def __init__(self,
                  sdc: bool = True) -> None:
         
+        """Adjust settings in the secm.json config file according to needs and
+        system requirements (i.e changed different COM Port)"""
+
         with open(os.path.join(ROOT_DIR, "config\\secm.json")) as config:
             config  = json.load(config)
         
         #Define Constants
         #TODO: find a reasonable value
-        self.stop_force = 0.05
-        self.positioning_velocity = 2000
+        self.stop_force = config['stop_force']
+        self.positioning_velocity = config['positioning_velocity']
 
         #Initialize Motor Controller and set parameters
         self.motor_controller = langpy.LStepController(os.path.join(ROOT_DIR,
@@ -44,13 +47,14 @@ class SECM():
                                                      config['pump_baudrate'],
                                                      config['pump_timeout'])
 
-            self.positions = PositionStorage()
             #These only need to be defined once on startup depending on the machine and position of substrate tray.
             #How do you make this more neat? Manual setup option on init or something maybe?
             self.positions.wash = config['wash_position']
             self.positions.dip = config['dip_position']
+        
+        self.positions = PositionStorage()
 
-        #self.electrode_size = 0
+        self.electrode_size = config['electrode_size']
         self.substrate_size = [0, 0]
         self.xy_axis_length = [220000, 220000]
         self.max_travel = [0, 0]
@@ -147,7 +151,7 @@ class SECM():
         self.motor_controller.MoveRelSingleAxis(3, 1000, True) #lift sdc head
         self.move_to_next_spot(step_size)
         self.find_contact(1500, 20, 0.22)
-        contact_position = self.motor_controller.GetPos() # Find the next position without elctrolyte in the sdc head
+        contact_position = self.motor_controller.GetPos() # Find the next position without electrolyte in the sdc head
         self.prime_cell()  # prime cell with electrolyte
         self.motor_controller.MoveAbs(contact_position[1],
                                       contact_position[2],
