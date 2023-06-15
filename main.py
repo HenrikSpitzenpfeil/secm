@@ -8,7 +8,6 @@ from position_storage import PositionStorage
 from config.definitions import ROOT_DIR
 from sdc import force_sensor, pump
 
-#TODO: Implement dummy methods
 class SECM():
     
     """A class representing the Scanning electrochemical microscope"""
@@ -24,6 +23,7 @@ class SECM():
         
         #Define Constants
         #TODO: find a reasonable value
+        self.positions = PositionStorage()
         self.stop_force = config['stop_force']
         self.positioning_velocity = config['positioning_velocity']
 
@@ -51,8 +51,6 @@ class SECM():
             #How do you make this more neat? Manual setup option on init or something maybe?
             self.positions.wash = config['wash_position']
             self.positions.dip = config['dip_position']
-        
-        self.positions = PositionStorage()
 
         self.electrode_size = config['electrode_size']
         self.substrate_size = None
@@ -85,14 +83,14 @@ class SECM():
             self.microdose_pump.set_program(30, 100, 0) # pulls electrolyte back into sdc head
             self.microdose_pump.run_pump()
             self.motor_controller.MoveRelSingleAxis(3, 1000, True) #lift sdc head
-            self.move_to_next_spot(step_size)
+            self.move_to_next_experiment(step_size)
             self.find_contact(5000, 50, 0.22)
             contact_position = self.motor_controller.GetPos() # Find the next position without electrolyte in the sdc head
             self.prime_cell()  # prime cell with electrolyte
             self.motor_controller.MoveAbs(contact_position[1],
-                                        contact_position[2],
-                                        contact_position[3],
-                                        contact_position[4])
+                                          contact_position[2],
+                                          contact_position[3],
+                                          contact_position[4])
             self.find_contact(5000, 50, 0.22) # make sure adequate contact is sustained
 
     def find_contact(self,
