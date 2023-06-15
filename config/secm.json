@@ -16,5 +16,6 @@
     "dip_position": [25795.8,20324.4,4989.2,0],
     "electrode_size": 15,
     "stop_force": 0.05,
-    "positioning_velocity": 2000
+    "positioning_velocity": 2000,
+    "xy_axis_length": [22000, 22000]
 }

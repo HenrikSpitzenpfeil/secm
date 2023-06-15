@@ -55,15 +55,16 @@ class SECM():
         self.positions = PositionStorage()
 
         self.electrode_size = config['electrode_size']
-        self.substrate_size = [0, 0]
-        self.xy_axis_length = [220000, 220000]
-        self.max_travel = [0, 0]
+        self.substrate_size = None
+        self.xy_axis_length = config['xy_axis_length']
+        self.max_travel = None
 
-    #TODO: Figure out how to best calculate measurement spots and hold substrate size
+    # TODO: Figure out how to best calculate measurement spots and hold substrate size
     def set_substrate_start_spot(self):
         self.manual_control()
-        self.positions.substrate_start_spot = self.motor_controller.GetPos()[1:]
+        self.positions.substrate_start_spot = list(self.motor_controller.GetPos()[1:])
 
+    # TODO: Add MaxTravel calculation and figure out the other TODO
     def new_substrate(self) -> tuple:
         
         """ Prompts user to install a new substrate and move the sdc head to the new starting position.
@@ -72,10 +73,27 @@ class SECM():
         input('Please install a new substrate')
         self.substrate_size = list(input('Please input a list with substrate size'))
         print('Please use W, A, S, D, +, - to move Probe to starting position for calibration. Press q to confirm')
-        self.manual_control() #enables manual control of the probe
-        print('Substrate calibrated successfully')
-        self.positions.substrate_start_spot = list(self.motor_controller.GetPos()[1:])
+        self.set_substrate_start_spot() #enables manual control of the probe
         self.positions.current_position = list(self.motor_controller.GetPos()[1:])
+        print('Substrate calibrated successfully')
+    
+    def prepare_next_experiment(self, step_size) -> None:
+            
+            """Aspirate the sdc head find next contact position
+            and primes cell for next experiment"""
+            
+            self.microdose_pump.set_program(30, 100, 0) # pulls electrolyte back into sdc head
+            self.microdose_pump.run_pump()
+            self.motor_controller.MoveRelSingleAxis(3, 1000, True) #lift sdc head
+            self.move_to_next_spot(step_size)
+            self.find_contact(5000, 50, 0.22)
+            contact_position = self.motor_controller.GetPos() # Find the next position without electrolyte in the sdc head
+            self.prime_cell()  # prime cell with electrolyte
+            self.motor_controller.MoveAbs(contact_position[1],
+                                        contact_position[2],
+                                        contact_position[3],
+                                        contact_position[4])
+            self.find_contact(5000, 50, 0.22) # make sure adequate contact is sustained
 
     def find_contact(self,
                      MaxWay: float,
@@ -101,7 +119,6 @@ class SECM():
             way_traveled = way_traveled + StepLength #track distance moved 
         return print("No contact found")
     
-    #TODO: Implement this as a function of electrode size and substrate size
     def move_to_next_experiment(self, step_size):
         
         """ Moves the sdc head to the next measurement spot.
@@ -141,31 +158,13 @@ class SECM():
         self.move_to_dip() # removes excess
         self.motor_controller.MoveRelSingleAxis(3, 1000, True) # lift up to break surface tension
 
-    def prepare_next_experiment(self, step_size) -> None:
-        
-        """Aspirate the sdc head find next contact position
-          and primes cell for next experiment"""
-        
-        self.microdose_pump.set_program(30, 100, 0) # pulls electrolyte back into sdc head
-        self.microdose_pump.run_pump()
-        self.motor_controller.MoveRelSingleAxis(3, 1000, True) #lift sdc head
-        self.move_to_next_spot(step_size)
-        self.find_contact(1500, 20, 0.22)
-        contact_position = self.motor_controller.GetPos() # Find the next position without electrolyte in the sdc head
-        self.prime_cell()  # prime cell with electrolyte
-        self.motor_controller.MoveAbs(contact_position[1],
-                                      contact_position[2],
-                                      contact_position[3],
-                                      contact_position[4])
-        self.find_contact(1500, 20, 0.22) # make sure adequate contact is sustained 
-
     def get_force_sensor_value(self) -> float:
         
         """Get the current value of the force sensor"""
 
         return self.force_sensor.get_measurement().value
 
-    # TODO: think about how to reserve some margin and account for allready used axis space because of wash etc.
+    # TODO: think about how to reserve some margin and account for already used axis space because of wash etc.
     def set_max_travel(self):
         if self.substrate_size < self.xy_axis_length:
              self.max_travel = self.substrate_size
