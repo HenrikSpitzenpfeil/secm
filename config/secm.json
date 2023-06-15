@@ -13,5 +13,6 @@
     "pump_baudrate": 1200,
     "pump_timeout": 1,
     "wash_position": [25795.8,26324.4,4989.2,0],
-    "dip_position": [25795.8,20324.4,4989.2,0]
+    "dip_position": [25795.8,20324.4,4989.2,0],
+    "electrode_size": 15
 }
