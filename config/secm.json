@@ -12,10 +12,10 @@
     "pump_port": "COM5",
     "pump_baudrate": 1200,
     "pump_timeout": 1,
-    "wash_position": [25795.8,26324.4,4989.2,0],
-    "dip_position": [25795.8,20324.4,4989.2,0],
+    "wash_position": [27320.5,27200.2,4987.5,0],
+    "dip_position": [27320.5,20536.2,4987.5,0],
     "electrode_size": 15,
     "stop_force": 0.05,
     "positioning_velocity": 2000,
-    "xy_axis_length": [22000, 22000]
+    "xy_axis_length": [27000, 27000]
 }

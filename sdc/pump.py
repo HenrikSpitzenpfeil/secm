@@ -56,7 +56,7 @@ class MicrodosePump:
           and the pump is available to receive commands."""
         
         while True:
-            handshake = int(self.get_pump_status()[8])
+            handshake = self.get_pump_status()
             if handshake == None: # For some reason get_pump_status can return None even though it shouldn't be able to
                 continue
 
@@ -78,6 +78,8 @@ class MicrodosePump:
             match = re.search(self.handshake_regex, i)
             if match != None:
                 return match.group()
+        if match == None:
+            self.get_pump_status()
 
     def read_pump(self) -> list:
         

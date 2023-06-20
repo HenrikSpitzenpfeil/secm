@@ -55,10 +55,11 @@ class SECM():
         self.electrode_size = config['electrode_size']
         self.substrate_size = None
         self.xy_axis_length = config['xy_axis_length']
-        self.max_travel = None
+        self.max_travel = config['xy_axis_length']
 
     # TODO: Figure out how to best calculate measurement spots and hold substrate size
     def set_substrate_start_spot(self):
+        print('Please use W, A, S, D, +, - to move Probe to starting position for calibration. Press q to confirm')
         self.manual_control()
         self.positions.substrate_start_spot = list(self.motor_controller.GetPos()[1:])
 
@@ -70,10 +71,15 @@ class SECM():
 
         input('Please install a new substrate')
         self.substrate_size = list(input('Please input a list with substrate size'))
-        print('Please use W, A, S, D, +, - to move Probe to starting position for calibration. Press q to confirm')
         self.set_substrate_start_spot() #enables manual control of the probe
         self.positions.current_position = list(self.motor_controller.GetPos()[1:])
-        print('Substrate calibrated successfully')
+        self.find_contact(5000, 50, 0.22)
+        contact_position = self.motor_controller.GetPos()[1:] # Find the next position without electrolyte in the sdc head
+        time.sleep(0.1)
+        self.prime_cell()  # prime cell with electrolyte
+        self.motor_controller.MoveAbs(*contact_position)
+        self.find_contact(5000, 50, 0.22) # make sure adequate contact is sustained
+        print('Substrate calibrated successfully, ready for measurement')
     
     def prepare_next_experiment(self, step_size) -> None:
             
@@ -85,12 +91,10 @@ class SECM():
             self.motor_controller.MoveRelSingleAxis(3, 1000, True) #lift sdc head
             self.move_to_next_experiment(step_size)
             self.find_contact(5000, 50, 0.22)
-            contact_position = self.motor_controller.GetPos() # Find the next position without electrolyte in the sdc head
+            contact_position = self.motor_controller.GetPos()[1:] # Find the next position without electrolyte in the sdc head
+            time.sleep(0.1)
             self.prime_cell()  # prime cell with electrolyte
-            self.motor_controller.MoveAbs(contact_position[1],
-                                          contact_position[2],
-                                          contact_position[3],
-                                          contact_position[4])
+            self.motor_controller.MoveAbs(*contact_position)
             self.find_contact(5000, 50, 0.22) # make sure adequate contact is sustained
 
     def find_contact(self,
