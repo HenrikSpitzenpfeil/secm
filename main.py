@@ -72,6 +72,7 @@ class SECM():
         input('Please install a new substrate')
         self.substrate_size = list(input('Please input a list with substrate size'))
         self.set_substrate_start_spot() #enables manual control of the probe
+        self.set_max_travel()
         self.positions.current_position = list(self.motor_controller.GetPos()[1:])
         self.find_contact(5000, 50, 0.22)
         contact_position = self.motor_controller.GetPos()[1:] # Find the next position without electrolyte in the sdc head
