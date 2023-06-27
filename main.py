@@ -167,11 +167,19 @@ class SECM():
         return self.force_sensor.get_measurement().value
 
     # TODO: think about how to reserve some margin and account for already used axis space because of wash etc.
-    def set_max_travel(self):
-        if self.substrate_size < self.xy_axis_length:
-             self.max_travel = self.substrate_size
-        else:
-            self.max_travel = self.xy_axis_length
+    def set_max_travel(self) -> None:
+
+        current_xy = self.motor_controller.GetPos()[1:3] # Get the current x, y coordinates of the sdc head
+        axis_length_used = []
+        
+        for i in range(len(self.xy_axis_length)):
+            axis_length_used.append(self.xy_axis_length[i]-current_xy[i]) # Calculate the axis length already used
+        
+        for i in range(len(self.substrate_size)): # find if the substrate or axis length is limiting for x and y direction
+            if self.substrate_size[i] + axis_length_used[i] < self.xy_axis_length[i]:
+                self.max_travel[i] = self.substrate_size[i]
+            else:
+                self.max_travel[i] = self.xy_axis_length[i] 
     
     def manual_control(self) -> None:
         
