@@ -169,6 +169,9 @@ class SECM():
 
     # TODO: think about how to reserve some margin and account for already used axis space because of wash etc.
     def set_max_travel(self) -> None:
+        
+        """ Calcualate and set the maximum travel of the head
+        to stay on the substrate and not exceed the maximum travel of the axis"""
 
         current_xy = self.motor_controller.GetPos()[1:3] # Get the current x, y coordinates of the sdc head
         axis_length_used = []
@@ -178,9 +181,9 @@ class SECM():
         
         for i in range(len(self.substrate_size)): # find if the substrate or axis length is limiting for x and y direction
             if self.substrate_size[i] + axis_length_used[i] < self.xy_axis_length[i]:
-                self.max_travel[i] = self.substrate_size[i]
+                self.max_travel[i] = self.substrate_size[i] - 200 # Reserve some margin so not to measure right at the edge of the substrate
             else:
-                self.max_travel[i] = self.xy_axis_length[i] 
+                self.max_travel[i] = self.xy_axis_length[i]-axis_length_used[i]
     
     def manual_control(self) -> None:
         
