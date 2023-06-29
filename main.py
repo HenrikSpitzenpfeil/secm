@@ -53,7 +53,7 @@ class SECM():
             self.positions.dip = config['dip_position']
 
         self.electrode_size = config['electrode_size']
-        self.substrate_size: list[float] = None
+        self.substrate_size: list[float] = []
         self.xy_axis_length = config['xy_axis_length']
         self.max_travel = config['xy_axis_length']
 
