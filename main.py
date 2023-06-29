@@ -53,7 +53,7 @@ class SECM():
             self.positions.dip = config['dip_position']
 
         self.electrode_size = config['electrode_size']
-        self.substrate_size = None
+        self.substrate_size: list[float] = None
         self.xy_axis_length = config['xy_axis_length']
         self.max_travel = config['xy_axis_length']
 
@@ -70,7 +70,8 @@ class SECM():
         Returns the coordinates of the starting position"""
 
         input('Please install a new substrate')
-        self.substrate_size = list(input('Please input a list with substrate size'))
+        self.substrate_size[0] = float(input('Please input x length of the substrate'))
+        self.substrate_size[1] = float(input('Please input y length of the substrate'))
         self.set_substrate_start_spot() #enables manual control of the probe
         self.set_max_travel()
         self.positions.current_position = list(self.motor_controller.GetPos()[1:])
