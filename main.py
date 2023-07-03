@@ -96,7 +96,11 @@ class SECM():
             contact_position = self.motor_controller.GetPos()[1:] # Find the next position without electrolyte in the sdc head
             time.sleep(0.1)
             self.prime_cell()  # prime cell with electrolyte
-            self.motor_controller.MoveAbs(*contact_position)
+            
+            # TODO: Shitty implementation needs fixing
+            for coordinates in range(3): # Move the head to contact position axis by axis to prevent scraping
+                self.motor_controller.MoveRelSingleAxis(coordinates, contact_position[coordinates])
+
             self.find_contact(5000, 50, 0.22) # make sure adequate contact is sustained
 
     def find_contact(self,
