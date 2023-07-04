@@ -75,12 +75,12 @@ class SECM():
         self.set_substrate_start_spot() #enables manual control of the probe
         self.set_max_travel()
         self.positions.current_position = list(self.motor_controller.GetPos()[1:])
-        self.find_contact(5000, 50, 0.22)
+        self.find_contact(5000, 50, 0.022)
         contact_position = self.motor_controller.GetPos()[1:] # Find the next position without electrolyte in the sdc head
         time.sleep(0.1)
         self.prime_cell()  # prime cell with electrolyte
         self.motor_controller.MoveAbs(*contact_position)
-        self.find_contact(5000, 50, 0.22) # make sure adequate contact is sustained
+        self.find_contact(5000, 50, 0.022) # make sure adequate contact is sustained
         print('Substrate calibrated successfully, ready for measurement')
     
     def prepare_next_experiment(self, step_size) -> None:
@@ -92,12 +92,12 @@ class SECM():
             self.microdose_pump.run_pump()
             self.motor_controller.MoveRelSingleAxis(3, 1000, True) #lift sdc head
             self.move_to_next_experiment(step_size)
-            self.find_contact(5000, 50, 0.22)
+            self.find_contact(5000, 50, 0.022)
             contact_position = self.motor_controller.GetPos()[1:] # Find the next position without electrolyte in the sdc head
             time.sleep(0.1)
             self.prime_cell()  # prime cell with electrolyte
             self.motor_controller.MoveAbs(*contact_position)
-            self.find_contact(5000, 50, 0.22) # make sure adequate contact is sustained
+            self.find_contact(5000, 50, 0.022) # make sure adequate contact is sustained
 
     def find_contact(self,
                      MaxWay: float,
@@ -108,7 +108,7 @@ class SECM():
         a force threshold is exceeded at the sdc head.
         1/10 of electrode diameter is recommended as step size.
         StopCondtion is a force value measured by 
-        the force sensor of the sdc head. 200 mN ≈ 0,22"""
+        the force sensor of the sdc head. 200 mN ≈ 0,022"""
 
         way_traveled = 0
         move_duration = StepLength/self.positioning_velocity
