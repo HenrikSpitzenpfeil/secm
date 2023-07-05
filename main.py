@@ -80,8 +80,12 @@ class SECM():
         contact_position = self.motor_controller.GetPos()[1:] # Find the next position without electrolyte in the sdc head
         time.sleep(0.1)
         self.prime_cell()  # prime cell with electrolyte
-        self.motor_controller.MoveAbs(*contact_position)
-        self.find_contact(5000, 50, 0.022) # make sure adequate contact is sustained
+       
+       # TODO: Shitty implementation needs fixing
+        for coordinates in range(3): # Move the head to contact position axis by axis to prevent scraping
+            self.motor_controller.MoveRelSingleAxis(coordinates, contact_position[coordinates])
+        
+        self.find_contact(5000, 50, self.contact_force) # make sure adequate contact is sustained
         print('Substrate calibrated successfully, ready for measurement')
     
     def prepare_next_experiment(self, step_size) -> None:
