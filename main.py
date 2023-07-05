@@ -24,7 +24,8 @@ class SECM():
         #Define Constants
         #TODO: find a reasonable value
         self.positions = PositionStorage()
-        self.stop_force = config['stop_force']
+        self.stop_force = config['emergency_stop_force'] # This is the force at which move commands during manual control are interrupted
+        self.contact_force = config['contact_force'] # This is the force used to find contact with the substrate
         self.positioning_velocity = config['positioning_velocity']
 
         #Initialize Motor Controller and set parameters
@@ -75,7 +76,7 @@ class SECM():
         self.set_substrate_start_spot() #enables manual control of the probe
         self.set_max_travel()
         self.positions.current_position = list(self.motor_controller.GetPos()[1:])
-        self.find_contact(5000, 50, 0.022)
+        self.find_contact(5000, 50, self.contact_force)
         contact_position = self.motor_controller.GetPos()[1:] # Find the next position without electrolyte in the sdc head
         time.sleep(0.1)
         self.prime_cell()  # prime cell with electrolyte
@@ -92,7 +93,7 @@ class SECM():
             self.microdose_pump.run_pump()
             self.motor_controller.MoveRelSingleAxis(3, 1000, True) #lift sdc head
             self.move_to_next_experiment(step_size)
-            self.find_contact(5000, 50, 0.022)
+            self.find_contact(5000, 50, self.contact_force)
             contact_position = self.motor_controller.GetPos()[1:] # Find the next position without electrolyte in the sdc head
             time.sleep(0.1)
             self.prime_cell()  # prime cell with electrolyte
@@ -101,7 +102,7 @@ class SECM():
             for coordinates in range(3): # Move the head to contact position axis by axis to prevent scraping
                 self.motor_controller.MoveRelSingleAxis(coordinates, contact_position[coordinates])
 
-            self.find_contact(5000, 50, 0.22) # make sure adequate contact is sustained
+            self.find_contact(5000, 50, self.contact_force) # make sure adequate contact is sustained
 
     def find_contact(self,
                      MaxWay: float,

@@ -15,7 +15,8 @@
     "wash_position": [27320.5,27200.2,4987.5,0],
     "dip_position": [27320.5,20536.2,4987.5,0],
     "electrode_size": 15,
-    "stop_force": 0.05,
+    "emergency_stop_force": 0.1,
+    "contact_force": 0.035,
     "positioning_velocity": 2000,
     "xy_axis_length": [27000, 27000]
 }
