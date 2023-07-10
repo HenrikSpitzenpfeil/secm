@@ -1,3 +1,4 @@
 *.ipynb
 build/
 .vscode/
+secm.egg-info/
