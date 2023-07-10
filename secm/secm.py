@@ -2,11 +2,11 @@ import os
 import keyboard
 import json
 import time
-from langpy import langpy
-from autolab import autolab
-from position_storage import PositionStorage
-from config.definitions import ROOT_DIR
-from sdc import force_sensor, pump
+import langpy
+from secm.position_storage import PositionStorage
+from secm.config.definitions import ROOT_DIR
+from secm.sdc import force_sensor, pump
+
 
 class SECM():
     
@@ -18,7 +18,7 @@ class SECM():
         """Adjust settings in the secm.json config file according to needs and
         system requirements (i.e changed different COM Port)"""
 
-        with open(os.path.join(ROOT_DIR, "config\\secm.json")) as config:
+        with open(os.path.join(ROOT_DIR, "config\\secm.json")) as config: # Access and load config file
             config  = json.load(config)
         
         #Define Constants
