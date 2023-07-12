@@ -13,6 +13,12 @@ class MEGSV_3:
         value = ctypes.c_double()
         self.dll.GSVread(self.port, ctypes.byref(value))
         return value
+    
+    def activate(self) -> None:
+        try:
+            self.dll.GSVactivate(self.port, self.buffer_size)
+        except:
+            print("Could not connect to force sensor")
 
     def release(self) -> None:
         self.dll.GSVrelease(self.port,self.buffer)

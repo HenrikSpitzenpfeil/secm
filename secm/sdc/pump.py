@@ -13,11 +13,20 @@ class MicrodosePump:
             self.pump = serial.Serial(port, baudrate, timeout = timeout)
             print("Connected to Microdose Pump")
         except:
-            print("Failed to connect to Microdose Pump")
+            print("Could not oper pump serial port")
         
         # Matches the handshake status pattern of the pump
         self.handshake_regex = re.compile("\d,HS\,[A-Z]{2}(?:\,\d)+")
     
+    def open_port(self) -> None:
+        try:
+            self.pump.open()
+        except:
+            print("Could not oper pump serial port")
+
+    def close_port(self) -> None:
+        self.pump.close()
+
     def set_program(self,
                     flowrate: int,
                     volume: int,
