@@ -58,8 +58,13 @@ class SECM():
         self.xy_axis_length = config['xy_axis_length']
         self.max_travel = config['xy_axis_length']
 
-    # TODO: Figure out how to best calculate measurement spots and hold substrate size
-    def set_substrate_start_spot(self):
+    def disconnect(self) -> None:
+        self.motor_controller.Disconnect()
+        self.microdose_pump.close_port()
+        self.force_sensor.release()
+    
+
+    def set_substrate_start_spot(self) -> None:
         print('Please use W, A, S, D, +, - to move Probe to starting position for calibration. Press q to confirm')
         self.manual_control()
         self.positions.substrate_start_spot = list(self.motor_controller.GetPos()[1:])
@@ -132,7 +137,7 @@ class SECM():
             way_traveled = way_traveled + StepLength #track distance moved 
         return print("No contact found")
     
-    def move_to_next_experiment(self, step_size):
+    def move_to_next_experiment(self, step_size) -> None:
         
         """ Moves the sdc head to the next measurement spot.
         Includes logic to find if there is no space left on substrate"""
@@ -155,10 +160,10 @@ class SECM():
             self.motor_controller.MoveRelSingleAxis(1, -step_size)
             self.positions.current_position = list(self.motor_controller.GetPos()[1:])
     
-    def move_to_wash(self):
+    def move_to_wash(self) -> None:
         self.motor_controller.MoveAbs(*self.positions.wash)
     
-    def move_to_dip(self):
+    def move_to_dip(self) -> None:
         self.motor_controller.MoveAbs(*self.positions.dip)
     
     def prime_cell(self) -> None:
