@@ -88,7 +88,7 @@ class SECM():
        
        # TODO: Shitty implementation needs fixing
         for coordinates in range(3): # Move the head to contact position axis by axis to prevent scraping
-            self.motor_controller.MoveRelSingleAxis(
+            self.motor_controller.MoveAbsSingleAxis(
                 coordinates+1,
                 contact_position[coordinates])
         
@@ -111,7 +111,7 @@ class SECM():
             
             # TODO: Shitty implementation needs fixing
             for coordinates in range(3): # Move the head to contact position axis by axis to prevent scraping
-                self.motor_controller.MoveRelSingleAxis(
+                self.motor_controller.MoveAbsSingleAxis(
                     coordinates+1,
                     contact_position[coordinates])
 
