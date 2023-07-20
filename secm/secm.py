@@ -88,7 +88,9 @@ class SECM():
        
        # TODO: Shitty implementation needs fixing
         for coordinates in range(3): # Move the head to contact position axis by axis to prevent scraping
-            self.motor_controller.MoveRelSingleAxis(coordinates, contact_position[coordinates])
+            self.motor_controller.MoveRelSingleAxis(
+                coordinates+1,
+                contact_position[coordinates])
         
         self.find_contact(5000, 50, self.contact_force) # make sure adequate contact is sustained
         print('Substrate calibrated successfully, ready for measurement')
@@ -109,7 +111,9 @@ class SECM():
             
             # TODO: Shitty implementation needs fixing
             for coordinates in range(3): # Move the head to contact position axis by axis to prevent scraping
-                self.motor_controller.MoveRelSingleAxis(coordinates, contact_position[coordinates])
+                self.motor_controller.MoveRelSingleAxis(
+                    coordinates+1,
+                    contact_position[coordinates])
 
             self.find_contact(5000, 50, self.contact_force) # make sure adequate contact is sustained
 
@@ -161,7 +165,10 @@ class SECM():
             self.positions.current_position = list(self.motor_controller.GetPos()[1:])
     
     def move_to_wash(self) -> None:
-        self.motor_controller.MoveAbs(*self.positions.wash)
+        self.motor_controller.MoveRelSingleAxis(3, 1000)
+        self.motor_controller.MoveAbsSingleAxis(1, self.positions.wash[0])
+        self.motor_controller.MoveAbsSingleAxis(2, self.positions.wash[1])
+        self.motor_controller.MoveAbsSingleAxis(3, self.positions.wash[2])
     
     def move_to_dip(self) -> None:
         self.motor_controller.MoveAbs(*self.positions.dip)
