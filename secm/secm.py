@@ -100,7 +100,7 @@ class SECM():
             """Aspirate the sdc head find next contact position
             and primes cell for next experiment"""
             
-            self.microdose_pump.set_program(30, 100, 0) # pulls electrolyte back into sdc head
+            self.microdose_pump.set_program(30, 150, 0) # pulls electrolyte back into sdc head
             self.microdose_pump.run_pump()
             self.motor_controller.MoveRelSingleAxis(3, 1000, True) #lift sdc head
             self.move_to_next_experiment(step_size)
@@ -165,12 +165,20 @@ class SECM():
             self.positions.current_position = list(self.motor_controller.GetPos()[1:])
     
     def move_to_wash(self) -> None:
+
+        """ Moves the sdc head to the wash position.
+        By lifting the head up from its current position 
+        and then moving to wash  coordinates"""
+       
         self.motor_controller.MoveRelSingleAxis(3, 1000)
         self.motor_controller.MoveAbsSingleAxis(1, self.positions.wash[0])
         self.motor_controller.MoveAbsSingleAxis(2, self.positions.wash[1])
         self.motor_controller.MoveAbsSingleAxis(3, self.positions.wash[2])
     
     def move_to_dip(self) -> None:
+        
+        """ Moves the sdc head to the dip position."""
+
         self.motor_controller.MoveAbs(*self.positions.dip)
     
     def prime_cell(self) -> None:
@@ -178,7 +186,7 @@ class SECM():
         """Flushes the cell of used electrolyte and removes excess electrolyte"""
 
         self.move_to_wash()
-        self.microdose_pump.set_program(30, 150, 1)
+        self.microdose_pump.set_program(30, 225, 1) # Set the pump program to pump 225 mikroL of liquid to the sdc head
         self.microdose_pump.run_pump() # flushes the cell
         self.move_to_dip() # removes excess
         self.motor_controller.MoveRelSingleAxis(3, 1000, True) # lift up to break surface tension
@@ -189,7 +197,6 @@ class SECM():
 
         return self.force_sensor.get_measurement().value
 
-    # TODO: think about how to reserve some margin and account for already used axis space because of wash etc.
     def set_max_travel(self) -> None:
         
         """ Calcualate and set the maximum travel of the head
