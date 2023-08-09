@@ -153,6 +153,7 @@ class SECM():
         if x_traveled > self.max_travel[0] - step_size: # Check if there is no space left in x-direction
             
             if y_traveled > self.max_travel[1] - step_size: # Check if there is no space left in y-direction
+                self.move_to_wash()
                 self.new_substrate() # Out of space on substrate new substrate needs to be installed
             
             else: # Out of x-space move to new line in y-axis

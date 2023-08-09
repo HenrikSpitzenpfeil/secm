@@ -34,7 +34,7 @@ class MicrodosePump:
                     ) -> None:
         
         """Set the Pump program which will be executed when run_pump is called.
-        Direction is 0 to pump to the SDC Head, 1 to pump away."""
+        Direction is 1 to pump to the SDC Head, 0 to pump away."""
 
         # Set the pump units to mikrolitre
         self.pump.write(bytes('1,WPU,1,0,0,1.0\r','utf-8'))
