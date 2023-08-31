@@ -1,0 +1,3 @@
+include secm/config/secm.json
+include secm/lstep64.dll
+include secm/sdc/MEGSV.dll

@@ -1,1 +1,6 @@
 *.ipynb
+build/
+.vscode/
+secm.egg-info/
+**/__pycache__/
+*.pyc

@@ -2,11 +2,11 @@ import os
 import keyboard
 import json
 import time
-from langpy import langpy
-from autolab import autolab
-from position_storage import PositionStorage
-from config.definitions import ROOT_DIR
-from sdc import force_sensor, pump
+import langpy
+from secm.position_storage import PositionStorage
+from secm.config.definitions import ROOT_DIR
+from secm.sdc import force_sensor, pump
+
 
 class SECM():
     
@@ -18,7 +18,7 @@ class SECM():
         """Adjust settings in the secm.json config file according to needs and
         system requirements (i.e changed different COM Port)"""
 
-        with open(os.path.join(ROOT_DIR, "config\\secm.json")) as config:
+        with open(os.path.join(ROOT_DIR, "config\\secm.json")) as config: # Access and load config file
             config  = json.load(config)
         
         #Define Constants
@@ -58,8 +58,13 @@ class SECM():
         self.xy_axis_length = config['xy_axis_length']
         self.max_travel = config['xy_axis_length']
 
-    # TODO: Figure out how to best calculate measurement spots and hold substrate size
-    def set_substrate_start_spot(self):
+    def disconnect(self) -> None:
+        self.motor_controller.Disconnect()
+        self.microdose_pump.close_port()
+        self.force_sensor.release()
+    
+
+    def set_substrate_start_spot(self) -> None:
         print('Please use W, A, S, D, +, - to move Probe to starting position for calibration. Press q to confirm')
         self.manual_control()
         self.positions.substrate_start_spot = list(self.motor_controller.GetPos()[1:])
@@ -83,7 +88,9 @@ class SECM():
        
        # TODO: Shitty implementation needs fixing
         for coordinates in range(3): # Move the head to contact position axis by axis to prevent scraping
-            self.motor_controller.MoveRelSingleAxis(coordinates, contact_position[coordinates])
+            self.motor_controller.MoveAbsSingleAxis(
+                coordinates+1,
+                contact_position[coordinates])
         
         self.find_contact(5000, 50, self.contact_force) # make sure adequate contact is sustained
         print('Substrate calibrated successfully, ready for measurement')
@@ -93,7 +100,7 @@ class SECM():
             """Aspirate the sdc head find next contact position
             and primes cell for next experiment"""
             
-            self.microdose_pump.set_program(30, 100, 0) # pulls electrolyte back into sdc head
+            self.microdose_pump.set_program(30, 150, 0) # pulls electrolyte back into sdc head
             self.microdose_pump.run_pump()
             self.motor_controller.MoveRelSingleAxis(3, 1000, True) #lift sdc head
             self.move_to_next_experiment(step_size)
@@ -104,7 +111,9 @@ class SECM():
             
             # TODO: Shitty implementation needs fixing
             for coordinates in range(3): # Move the head to contact position axis by axis to prevent scraping
-                self.motor_controller.MoveRelSingleAxis(coordinates, contact_position[coordinates])
+                self.motor_controller.MoveAbsSingleAxis(
+                    coordinates+1,
+                    contact_position[coordinates])
 
             self.find_contact(5000, 50, self.contact_force) # make sure adequate contact is sustained
 
@@ -132,7 +141,7 @@ class SECM():
             way_traveled = way_traveled + StepLength #track distance moved 
         return print("No contact found")
     
-    def move_to_next_experiment(self, step_size):
+    def move_to_next_experiment(self, step_size) -> None:
         
         """ Moves the sdc head to the next measurement spot.
         Includes logic to find if there is no space left on substrate"""
@@ -144,6 +153,7 @@ class SECM():
         if x_traveled > self.max_travel[0] - step_size: # Check if there is no space left in x-direction
             
             if y_traveled > self.max_travel[1] - step_size: # Check if there is no space left in y-direction
+                self.move_to_wash()
                 self.new_substrate() # Out of space on substrate new substrate needs to be installed
             
             else: # Out of x-space move to new line in y-axis
@@ -155,10 +165,21 @@ class SECM():
             self.motor_controller.MoveRelSingleAxis(1, -step_size)
             self.positions.current_position = list(self.motor_controller.GetPos()[1:])
     
-    def move_to_wash(self):
-        self.motor_controller.MoveAbs(*self.positions.wash)
+    def move_to_wash(self) -> None:
+
+        """ Moves the sdc head to the wash position.
+        By lifting the head up from its current position 
+        and then moving to wash  coordinates"""
+       
+        self.motor_controller.MoveRelSingleAxis(3, 1000)
+        self.motor_controller.MoveAbsSingleAxis(1, self.positions.wash[0])
+        self.motor_controller.MoveAbsSingleAxis(2, self.positions.wash[1])
+        self.motor_controller.MoveAbsSingleAxis(3, self.positions.wash[2])
     
-    def move_to_dip(self):
+    def move_to_dip(self) -> None:
+        
+        """ Moves the sdc head to the dip position."""
+
         self.motor_controller.MoveAbs(*self.positions.dip)
     
     def prime_cell(self) -> None:
@@ -166,7 +187,7 @@ class SECM():
         """Flushes the cell of used electrolyte and removes excess electrolyte"""
 
         self.move_to_wash()
-        self.microdose_pump.set_program(30, 150, 1)
+        self.microdose_pump.set_program(30, 225, 1) # Set the pump program to pump 225 mikroL of liquid to the sdc head
         self.microdose_pump.run_pump() # flushes the cell
         self.move_to_dip() # removes excess
         self.motor_controller.MoveRelSingleAxis(3, 1000, True) # lift up to break surface tension
@@ -177,7 +198,6 @@ class SECM():
 
         return self.force_sensor.get_measurement().value
 
-    # TODO: think about how to reserve some margin and account for already used axis space because of wash etc.
     def set_max_travel(self) -> None:
         
         """ Calcualate and set the maximum travel of the head
